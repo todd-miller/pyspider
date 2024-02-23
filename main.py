@@ -74,6 +74,10 @@ class Card:
     def strictEquals(self, other: "Card") -> bool:
         return self == other and self.suit == other.suit
 
+    @staticmethod
+    def cardsToStrings(cards: List["Card"]) -> List[str]:
+        return [str(card) for card in cards]
+
 
 class Pile:
     """
@@ -90,19 +94,21 @@ class Pile:
     def __str__(self) -> str:
        return str(self.toJson())
 
-    def visible_as_str(self):
-        return [str(card) for card in self.visible] 
-
-    def hidden_as_str(self):
-        return [HIDDEN_SYMBOL for _ in self.hidden] 
-
     def toJson(self):
-        return self.hidden_as_str() + self.visible_as_str() 
+        return [len(self.hidden)*'?'] + Card.cardsToStrings(self.visible)
 
     def checkIfCompleted(self):
-        visible = self.visible_as_str()[-len(LABELS):]
-        if len(self.visible) >= len(LABELS) and visible in COMPLETE_STACKS:
-            self.completed.append(visible[-len(LABELS):])
+        suit = self.visible[0].suit
+        
+        cardsToCheck = Card.cardsToStrings(
+                self.visible[-len(LABELS):]
+        )
+        fullSuit = Card.cardsToStrings(
+                Factory().createSuit(suit, ascending=False)
+        )
+
+        if len(self.visible) >= len(LABELS) and cardsToCheck == fullSuit:
+            self.completed.append(suit)
             self.removeCards(-len(LABELS))
 
     def addCards(self, cards: List[Card], force: bool = False) -> None:
@@ -191,10 +197,14 @@ class Board:
 
 class Factory:
     @staticmethod
-    def createSuit(suit: str) -> List[Card]:
+    def createSuit(suit: str, ascending: bool = True) -> List[Card]:
         cards = []
         for label in LABELS:
             cards.append(Card(suit, label))
+
+        if not ascending:
+            cards.reverse()
+
         return cards
 
     def createDeck(self) -> List[Card]:

@@ -1,9 +1,8 @@
 import random
-import pytest
 
 from ..main import (
     HIDDEN_SYMBOL, SUITS,
-    LABELS, Card, Pile, Board 
+    LABELS, Card, Factory, Pile, Board 
 )
 
 
@@ -148,6 +147,14 @@ class TestPile:
         ]
         pile = Pile(hidden=hidden, visible=visible)
         assert pile.toJson() == list(HIDDEN_SYMBOL*4) + ['10♦']
+
+    def testCompletes(self):
+        fullSuit = Factory().createSuit("♦", ascending=False)
+        pile = Pile(hidden=[], visible=fullSuit[:-1], completed=[])
+        print(pile.toJson())
+        pile.addCards([Card(suit='♦', label='A')])
+        print(pile.toJson())
+        assert len(pile.completed) == 1
 
 
 class TestBoard:
