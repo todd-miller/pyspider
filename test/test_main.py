@@ -69,17 +69,16 @@ class TestPile:
         for case in cases:
             visible, newCards, expected = case
             pile = Pile(hidden=[], visible=[Card.fromStr(card) for card in visible])
-            toAdd = [Card.fromStr(card) for card in newCards]
+            toAdd = Card.cardsFromStrings(newCards) 
 
             canAdd, message = pile.canAddCards(toAdd)
 
             if canAdd:
                 pile.addCards(toAdd)
-                assert pile.visible_as_str() == expected
+                assert Card.cardsToStrings(pile.visible) == expected
             else:
                 assert message == expected
 
-    
     def test_removeCards(self):
         # TODO - need to extend cases
         cases = [
@@ -113,49 +112,46 @@ class TestPile:
         for case in cases:
             hidden, visible, moveIndex, expected = case
             pile = Pile(
-                hidden=[Card.fromStr(card) for card in hidden], 
-                visible=[Card.fromStr(card) for card in visible],
+                hidden=Card.cardsFromStrings(hidden),
+                visible=Card.cardsFromStrings(visible),
                 completed=[]
             )
 
             canRemove, message = pile.canRemoveCards(moveIndex)
             if canRemove:
                 pile.removeCards(moveIndex)
-                assert pile.visible_as_str() == expected
+                assert Card.cardsToStrings(pile.visible) == expected
             else:
                 assert message == expected
 
     def test_hiddenCardFlips(self):
-        hidden = [
-            Card.fromStr(string) 
-            for string in ['J❤', '10♦', 'K❤', '7❤']
-        ]
-        visible = [
-            Card.fromStr(string) for string in ['10♦']
-        ]
+        hidden = Card.cardsFromStrings(['J❤', '10♦', 'K❤', '7❤']) 
+        visible = Card.cardsFromStrings(['10♦'])
+
         pile = Pile(hidden=hidden, visible=visible, completed=[])
         pile.removeCards(-1)
         assert pile.toJson() == list(HIDDEN_SYMBOL * 3) + ['7❤']
 
     def test_hiddenCards(self):
-        hidden = [
-            Card.fromStr(string) 
-            for string in ['J❤', '10♦', 'K❤', '7❤']
-        ]
-        visible = [
-            Card.fromStr(string) for string in ['10♦']
-        ]
+        hidden = Card.cardsFromStrings(['J❤', '10♦', 'K❤', '7❤'])
+        visible = Card.cardsFromStrings(['10♦']) 
+
         pile = Pile(hidden=hidden, visible=visible)
         assert pile.toJson() == list(HIDDEN_SYMBOL*4) + ['10♦']
 
     def testCompletes(self):
         fullSuit = Factory().createSuit("♦", ascending=False)
-        pile = Pile(hidden=[], visible=fullSuit[:-1], completed=[])
-        print(pile.toJson())
+        hiddenCard = Card.fromStr('J♣')
+        pile = Pile(
+            hidden=[hiddenCard], 
+            visible=fullSuit[:-1], 
+            completed=[]
+        )
         pile.addCards([Card(suit='♦', label='A')])
-        print(pile.toJson())
-        assert len(pile.completed) == 1
 
+        assert pile.completed == ['♦']
+        assert pile.visible ==  [hiddenCard]
+        assert pile.hidden == []
 
 class TestBoard:
 
@@ -163,8 +159,8 @@ class TestBoard:
         for i, pileSize in enumerate(Board.PILE_SIZES):
             hiddenSize = pileSize - 1
             pile = board.piles[i]
-            assert len(pile.visible_as_str()) == 1
-            assert pile.hidden_as_str() == list(HIDDEN_SYMBOL * hiddenSize)
+            assert len(pile.visible) == 1
+            assert pile.toJson()[:hiddenSize] == list(HIDDEN_SYMBOL * hiddenSize)
 
         assert len(board.piles) == 10
         assert len(board.stack) == 50

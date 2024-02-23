@@ -78,6 +78,10 @@ class Card:
     def cardsToStrings(cards: List["Card"]) -> List[str]:
         return [str(card) for card in cards]
 
+    @staticmethod
+    def cardsFromStrings(cards: List[str]) -> List["Card"]:
+        return [Card.fromStr(card) for card in cards]
+
 
 class Pile:
     """
@@ -95,7 +99,7 @@ class Pile:
        return str(self.toJson())
 
     def toJson(self):
-        return [len(self.hidden)*'?'] + Card.cardsToStrings(self.visible)
+        return len(self.hidden)*['?'] + Card.cardsToStrings(self.visible)
 
     def checkIfCompleted(self):
         suit = self.visible[0].suit
@@ -110,6 +114,7 @@ class Pile:
         if len(self.visible) >= len(LABELS) and cardsToCheck == fullSuit:
             self.completed.append(suit)
             self.removeCards(-len(LABELS))
+            self.flipNextCard()
 
     def addCards(self, cards: List[Card], force: bool = False) -> None:
         if self.canAddCards(cards) or force:
@@ -143,7 +148,8 @@ class Pile:
                 current = card
 
             if not canRemove:
-                message = f"{current} can not be moved with {card}, attempting to move: {self.visible_as_str()[index:]}"
+                attemptedMove = Card.cardsToStrings(self.visible[index:])
+                message = f"{current} can not be moved with {card}, attempting to move: {attemptedMove}"
         except IndexError as e:
             canRemove = False
             message = str(e)

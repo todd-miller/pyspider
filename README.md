@@ -9,6 +9,9 @@ to have a neat thing to do as a side project that is very, very small in scope.
 If I like it, i'll spin it into other projects
 If I hate it, i'll probably delete this README, so no worries.
 
+## Helpful Commands:
+test methods matching <testName> while displaying stdout for tests that are passing
+`pytest -k <testName> -rP`
 
 ## Progress So Far:
 I can print a graphically simple, but logically accurate board. 
@@ -20,6 +23,8 @@ I can print a graphically simple, but logically accurate board.
     - display cards correctly where hidden cards are displayed as '?'
     - append legal cards to the Pile
     - make legal removes from the Pile 
+    - removes cards that are part of a completed set 
+    - keeps track of completed sets
 - the SpiderGame can:
     - handle player moves, where illegal moves are simply not transacted
 
@@ -37,10 +42,6 @@ I can print a graphically simple, but logically accurate board.
 
 
 ## Next Steps:
-- Piles need to know when a stack has been completed
-    - remove the completed run
-    - flip cards if necessary
-    - give the cards to the SpiderGame
 - Display how many deals are left
 - Display how many stacks have been completed
 - Make UX better, 
