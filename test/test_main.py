@@ -1,7 +1,10 @@
 import random
 import pytest
 
-from ..main import Card, SUITS, LABELS, Pile
+from ..main import (
+    HIDDEN_SYMBOL, SUITS,
+    LABELS, Card, Pile, Board 
+)
 
 
 class TestCard: 
@@ -54,13 +57,13 @@ class TestPile:
             (
                 ['4❤', '3❤'],
                 ['3❤', '2❤'],
-                ValueError("3❤ cannot be stacked on 3❤")
+                "3❤ cannot be stacked on 3❤"
             ),
 
             (
                 ['4❤', '3❤'],
                 ['2♦', 'A♦'],
-                ValueError("2♦ cannot be stacked on 3❤")
+                "2♦ cannot be stacked on 3❤"
             )
         ]
 
@@ -69,40 +72,119 @@ class TestPile:
             pile = Pile(hidden=[], visible=[Card.fromStr(card) for card in visible])
             toAdd = [Card.fromStr(card) for card in newCards]
 
-            if isinstance(expected, Exception):
-                with pytest.raises(type(expected)) as e:
-                    pile.addCards(toAdd)
-                assert str(e.value) == str(expected)
+            canAdd, message = pile.canAddCards(toAdd)
 
-            else:
+            if canAdd:
                 pile.addCards(toAdd)
                 assert pile.visible_as_str() == expected
+            else:
+                assert message == expected
+
     
     def test_removeCards(self):
+        # TODO - need to extend cases
         cases = [
             (
-                ['4❤', '3❤', '2❤', 'A❤'],  # current Pile
+                [],                        # current Pile.hidden
+                ['4❤', '3❤', '2❤', 'A❤'],  # current Pile.visible
                 1,                         # index to grab and remove all cards after index
                 ['4❤']                     # expected result
             ),
             (
+                [],
                 ['4❤', '10♦', '2❤', 'A❤'],
                 1,
-                ValueError("10♦ can not be moved with 2❤, attempting to move: ['10♦', '2❤', 'A❤']")
+                "10♦ can not be moved with 2❤, attempting to move: ['10♦', '2❤', 'A❤']"
+            ),
+            (
+                [],
+                [],
+                0,
+                "list index out of range"
+            ),
+            (
+                ['Q❤'],
+                ['10♦'],
+                0,
+                ['Q❤'],
             )
+
+
         ]
         for case in cases:
-            visibleCards, moveIndex, expected = case
-            cards =  [Card.fromStr(card) for card in visibleCards]
-            pile = Pile(hidden=[], visible=cards)
+            hidden, visible, moveIndex, expected = case
+            pile = Pile(
+                hidden=[Card.fromStr(card) for card in hidden], 
+                visible=[Card.fromStr(card) for card in visible],
+                completed=[]
+            )
 
-            if isinstance(expected, Exception):
-                print("here at is Exception")
-                with pytest.raises(type(expected)) as e:
-                    pile.removeCards(moveIndex)
-                assert str(e.value) == str(expected)
-
-            else:
+            canRemove, message = pile.canRemoveCards(moveIndex)
+            if canRemove:
                 pile.removeCards(moveIndex)
                 assert pile.visible_as_str() == expected
+            else:
+                assert message == expected
+
+    def test_hiddenCardFlips(self):
+        hidden = [
+            Card.fromStr(string) 
+            for string in ['J❤', '10♦', 'K❤', '7❤']
+        ]
+        visible = [
+            Card.fromStr(string) for string in ['10♦']
+        ]
+        pile = Pile(hidden=hidden, visible=visible, completed=[])
+        pile.removeCards(-1)
+        assert pile.toJson() == list(HIDDEN_SYMBOL * 3) + ['7❤']
+
+    def test_hiddenCards(self):
+        hidden = [
+            Card.fromStr(string) 
+            for string in ['J❤', '10♦', 'K❤', '7❤']
+        ]
+        visible = [
+            Card.fromStr(string) for string in ['10♦']
+        ]
+        pile = Pile(hidden=hidden, visible=visible)
+        assert pile.toJson() == list(HIDDEN_SYMBOL*4) + ['10♦']
+
+
+class TestBoard:
+
+    def assertBoardShape(self, board) -> None:
+        for i, pileSize in enumerate(Board.PILE_SIZES):
+            hiddenSize = pileSize - 1
+            pile = board.piles[i]
+            assert len(pile.visible_as_str()) == 1
+            assert pile.hidden_as_str() == list(HIDDEN_SYMBOL * hiddenSize)
+
+        assert len(board.piles) == 10
+        assert len(board.stack) == 50
+
+    def test_newGame(self):
+        shuffled = Board.new()
+        unshuffled = Board.new(shuffle=False)
+
+        self.assertBoardShape(shuffled)
+        self.assertBoardShape(unshuffled)
+
+    def test_move(self):
+        board= Board.new(shuffle=False)
+        board.displayBoard()
+        board.move((4, -1), 9)
+        print('- ' * 25)
+        board.displayBoard()
+        print('- ' * 25)
+        board.move((2, -1), 9)
+        board.displayBoard()
+
+       # print('- ' * 25)
+       # game.move((1, -1), 3)
+       # game.displayBoard()
+
+       # print('- ' * 25)
+       # game.move((1, -1), 3)
+       # game.displayBoard()
+        print('= ' * 25)
 
