@@ -29,29 +29,27 @@ I can print a graphically simple, but logically accurate board.
     - handle player moves, where illegal moves are simply not transacted
 
 ### Graphics
+COMPLETE: 0
 0:['?', '?', '?', '?', '?', 'K♦']
 1:['?', '?', '?', '?', '?', '7♦']
-2:['?', '?', '?', '?', '?', 'A♦']
+2:['?', '?', '?', '?', 'K♣']
 3:['?', '?', '?', '?', '?', '8♣']
-4:['?', '?', '?', '?', '2♣']
+4:['?', '?', '?', 'A♣']
 5:['?', '?', '?', '?', '10♠']
 6:['?', '?', '?', '?', '5♠']
 7:['?', '?', '?', '?', 'K❤']
 8:['?', '?', '?', '?', '8❤']
-9:['?', '?', '?', '?', '3❤']
-
+9:['?', '?', '?', '?', '3❤', '2♣', 'A♦']
+REMAINING: 5
 
 ## Next Steps:
-- Display how many deals are left
-- Display how many stacks have been completed
+- Game Loop -> need to add controls to make this playable
 - Make UX better, 
     - make the commands as simple as possible for making command line moves
     - i forsee an issue of a user entering the suits icon:
         - maybe i'll listen for double "hh = ❤", "dd = ♦", etc.
 - Single click returns first legal move option 
         - I'd like to write this, it seems fun
-- Game Loop
-    - right now I'm just testing behaviors, I should start making it playable
 - Test a full game
     - wonder if I could keep a fixture that's an entire game worth of moves and just
     have the computer run it.

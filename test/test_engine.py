@@ -1,6 +1,6 @@
 import random
 
-from ..main import (
+from ..engine import (
     HIDDEN_SYMBOL, SUITS,
     LABELS, Card, Factory, Pile, Board 
 )
@@ -36,7 +36,7 @@ class TestCard:
                 canStack.append(str(otherCard))
 
 
-        assert len(canStack) == 3
+        assert len(canStack) == 4
 
 
 class TestPile:
@@ -62,7 +62,7 @@ class TestPile:
             (
                 ['4❤', '3❤'],
                 ['2♦', 'A♦'],
-                "2♦ cannot be stacked on 3❤"
+                ['4❤', '3❤','2♦', 'A♦'],
             )
         ]
 
@@ -174,20 +174,12 @@ class TestBoard:
 
     def test_move(self):
         board= Board.new(shuffle=False)
-        board.displayBoard()
+        board.draw()
         board.move((4, -1), 9)
         print('- ' * 25)
-        board.displayBoard()
+        board.draw()
         print('- ' * 25)
         board.move((2, -1), 9)
-        board.displayBoard()
-
-       # print('- ' * 25)
-       # game.move((1, -1), 3)
-       # game.displayBoard()
-
-       # print('- ' * 25)
-       # game.move((1, -1), 3)
-       # game.displayBoard()
+        board.draw()
         print('= ' * 25)
 
